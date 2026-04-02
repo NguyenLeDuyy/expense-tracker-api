@@ -5,3 +5,4 @@ __pycache__/
 *.pyd
 .env
 expenses.db
+__pycache__/main.cpython-314.pyc
