@@ -1,20 +1,20 @@
-from models import Expense
-from schemas import ExpenseCreate
+from models.expense import Expense
+from schemas.expense import ExpenseCreate
 from sqlalchemy.orm import Session
 
-def get_expense_by_id(db: Session, expense_id) -> Expense | None:
-    return db.query(Expense).filter(Expense.id == expense_id).first()
+def get_expense_by_id(db: Session, expense_id, user_id: int) -> Expense | None:
+    return db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user_id).first()
 
-def create_expense(db: Session, expense_data: ExpenseCreate):
-    expense = Expense(amount=expense_data.amount, category=expense_data.category)
+def create_expense(db: Session, expense_data: ExpenseCreate, user_id: int):
+    expense = Expense(amount=expense_data.amount, category=expense_data.category, user_id=user_id)
     db.add(expense)
     return expense
 
-def get_expenses(db: Session):
-    return db.query(Expense).all()
+def get_expenses(db: Session, user_id: int):
+    return db.query(Expense).filter(Expense.user_id == user_id).all()
     
-def delete_expense(db: Session, expense_id: int):
-    expense = get_expense_by_id(db, expense_id)
+def delete_expense(db: Session, expense_id: int, user_id: int):
+    expense = get_expense_by_id(db, expense_id, user_id)
 
     if not expense:
         return None
@@ -22,8 +22,8 @@ def delete_expense(db: Session, expense_id: int):
     db.delete(expense)
     return expense
 
-def update_expense(db: Session, expense_data: ExpenseCreate, expense_id: int):
-    expense = get_expense_by_id(db, expense_id)
+def update_expense(db: Session, expense_data: ExpenseCreate, expense_id: int, user_id: int):
+    expense = get_expense_by_id(db, expense_id, user_id)
 
     if not expense:
         return None

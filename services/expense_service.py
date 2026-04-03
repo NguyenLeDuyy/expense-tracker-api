@@ -6,21 +6,20 @@ from crud.expense import (
     update_expense,
     delete_expense
 )
-from models import Expense
-from schemas import ExpenseCreate
+from schemas.expense import ExpenseCreate
 from sqlalchemy.orm import Session
-def create_expense_service(db: Session, expense_data: ExpenseCreate):
-    expense = create_expense(db, expense_data)
+def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: int):
+    expense = create_expense(db, expense_data, user_id)
     
     db.commit()
     db.refresh(expense)
     return expense
 
-def get_expenses_service(db: Session):
-    return get_expenses(db)
+def get_expenses_service(db: Session, user_id: int):
+    return get_expenses(db, user_id)
     
-def delete_expense_service(db: Session, expense_id: int):
-    expense = delete_expense(db, expense_id)
+def delete_expense_service(db: Session, expense_id: int, user_id: int):
+    expense = delete_expense(db, expense_id, user_id)
 
     if not expense:
         raise HTTPException(status_code=404, detail="Not found")
@@ -28,8 +27,8 @@ def delete_expense_service(db: Session, expense_id: int):
     db.commit()
     return expense
 
-def update_expense_service(db: Session, expense_data: ExpenseCreate, expense_id: int):
-    expense = update_expense(db, expense_data, expense_id)
+def update_expense_service(db: Session, expense_data: ExpenseCreate, expense_id: int, user_id: int):
+    expense = update_expense(db, expense_data, expense_id, user_id)
     
     if not expense:
         raise HTTPException(status_code=404, detail="Not found")

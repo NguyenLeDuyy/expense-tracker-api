@@ -7,3 +7,4 @@ class Expense(Base):
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Integer)
     category = Column(String)
+    user_id = Column(Integer)
