@@ -1,7 +1,7 @@
 import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
 
@@ -16,3 +16,5 @@ class User(Base):
         DateTime,
         default=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
+
+    refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")

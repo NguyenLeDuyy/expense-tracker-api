@@ -11,7 +11,7 @@ from services.expense_service import (
     update_expense_service
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/expenses", tags=["Expenses"])
 
 # Dependency pattern in FastAPI
 def get_db():
@@ -21,7 +21,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/expenses")
+@router.post("/")
 def create_expense(
     expense: ExpenseCreate, 
     db: Session = Depends(get_db),
@@ -29,13 +29,13 @@ def create_expense(
     ):
     return create_expense_service(db, expense, current_user.id)
 
-@router.get("/expenses")
+@router.get("/")
 def get_expenses(db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)
                  ):
     return get_expenses_service(db, current_user.id)
 
-@router.delete("/expenses/{expense_id}")
+@router.delete("/{expense_id}")
 def delete_expense(
     expense_id: int, 
     db: Session = Depends(get_db),
@@ -44,7 +44,7 @@ def delete_expense(
     delete_expense_service(db, expense_id, current_user.id)
     return {"message": "Deleted"}
 
-@router.put("/expenses/{expense_id}")
+@router.put("/{expense_id}")
 def update_expense(
     updated: ExpenseCreate, 
     expense_id: int, 
