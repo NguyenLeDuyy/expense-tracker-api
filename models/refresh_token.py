@@ -1,3 +1,4 @@
+from models.user import User
 import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
@@ -20,4 +21,4 @@ class RefreshToken(Base):
         nullable=False,
     )
 
-    user = relationship("User", back_populates="refresh_tokens")
+    user: Mapped["User"] = relationship("User", back_populates="refresh_tokens")

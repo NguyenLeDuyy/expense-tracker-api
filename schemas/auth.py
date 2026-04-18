@@ -20,3 +20,6 @@ class TokenPairResponse(BaseModel):
 class UserPublic(BaseModel):
     id: int
     email: EmailStr
+
+class RefreshRequest(BaseModel):
+    refresh_token: str

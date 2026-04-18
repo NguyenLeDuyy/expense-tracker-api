@@ -1,3 +1,4 @@
+from app.core.deps import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.deps import get_current_user
@@ -12,14 +13,6 @@ from services.expense_service import (
 )
 
 router = APIRouter(prefix="/expenses", tags=["Expenses"])
-
-# Dependency pattern in FastAPI
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/")
 def create_expense(
