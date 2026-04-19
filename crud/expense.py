@@ -1,3 +1,4 @@
+from datetime import datetime
 from models.expense import Expense
 from schemas.expense import ExpenseCreate
 from sqlalchemy.orm import Session
@@ -6,7 +7,15 @@ def get_expense_by_id(db: Session, expense_id, user_id: int) -> Expense | None:
     return db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user_id).first()
 
 def create_expense(db: Session, expense_data: ExpenseCreate, user_id: int):
-    expense = Expense(amount=expense_data.amount, category=expense_data.category, user_id=user_id)
+    expense_date = expense_date = expense_data.date or datetime.date.today()
+    
+    
+    expense = Expense(
+            amount=expense_data.amount,
+            category_id=expense_data.category_id,
+            user_id=user_id,
+            date = expense_date
+        )
     db.add(expense)
     return expense
 
@@ -29,5 +38,5 @@ def update_expense(db: Session, expense_data: ExpenseCreate, expense_id: int, us
         return None
     
     expense.amount = expense_data.amount
-    expense.category = expense_data.category
+    expense.category_id = expense_data.category_id
     return expense

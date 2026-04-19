@@ -3,7 +3,6 @@ from app.core.deps import get_db
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.deps import get_current_user
-from database import SessionLocal
 from models.user import User
 from schemas.auth import LoginRequest, RegisterRequest
 from services.user_service import create_user_service, login_user_service, refresh_access_token_service
@@ -26,7 +25,11 @@ def login_for_access_token(
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    return login_user_service(db, LoginRequest(email=username, password=password))
+    result = login_user_service(db, LoginRequest(email=username, password=password))
+    return {
+        "access_token": result["tokens"].access_token,
+        "token_type": "bearer"
+    }
     
 @router.post("/refresh")
 def refresh_token(payload: RefreshRequest, db: Session = Depends(get_db)):

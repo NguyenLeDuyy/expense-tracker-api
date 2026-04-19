@@ -1,4 +1,6 @@
-from models.user import User
+from datetime import date
+from datetime import datetime
+from sqlalchemy import Date
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer, String
@@ -11,7 +13,9 @@ class Expense(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     amount: Mapped[int] = mapped_column(Integer)
-    category: Mapped[str] = mapped_column(String)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("categories.id", ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    date: Mapped[date] = mapped_column(Date, default=date.today)
 
     user: Mapped["User"] = relationship("User", back_populates="expenses")
+    category: Mapped["Category"] = relationship("Category", back_populates="expenses")
