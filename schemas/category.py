@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class CategoryCreate(BaseModel):
     name: str
-    monthly_budget: int
+    monthly_budget: int = Field(ge=0)
 
 class CategoryResponse(BaseModel):
     id: int

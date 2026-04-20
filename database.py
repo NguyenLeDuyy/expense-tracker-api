@@ -4,10 +4,11 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# Load biến từ .env
 load_dotenv()
 
-DATABASE_URL = str(os.getenv("DATABASE_URL", "postgresql://postgres:123456@localhost:5432/expense_db"))
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set. Check your .env file.")
 
 # SQLite cần check_same_thread
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}

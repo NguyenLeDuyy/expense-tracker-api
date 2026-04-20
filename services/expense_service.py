@@ -20,10 +20,15 @@ def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: in
 
     warning_message = None
 
-    category = db.query(Category).filter(Category.id == expense_data.category_id).first()
+    category = db.query(Category).filter(
+        Category.id == expense_data.category_id,
+        Category.user_id == user_id
+    ).first()
 
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
 
-    if category and category.monthly_budget > 0:
+    if category.monthly_budget > 0:
         first_day_of_month = expense.date.replace(day=1)
 
         total_spent = db.query(func.sum(Expense.amount)).filter(
@@ -37,7 +42,14 @@ def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: in
 
         expense.warning=warning_message
 
-    return expense
+    return ExpenseResponse(
+        id=expense.id,
+        amount=expense.amount,
+        category_id=category.id,
+        date=expense.date,
+        user_id=expense.user_id,
+        warning=expense.warning
+    )
 
 def get_expenses_service(db: Session, user_id: int):
     return get_expenses(db, user_id)

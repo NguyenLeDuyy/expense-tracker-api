@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from models.expense import Expense
 from schemas.expense import ExpenseCreate
 from sqlalchemy.orm import Session
@@ -7,8 +7,7 @@ def get_expense_by_id(db: Session, expense_id, user_id: int) -> Expense | None:
     return db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user_id).first()
 
 def create_expense(db: Session, expense_data: ExpenseCreate, user_id: int):
-    expense_date = expense_date = expense_data.date or datetime.date.today()
-    
+    expense_date = expense_data.date or date.today()
     
     expense = Expense(
             amount=expense_data.amount,
