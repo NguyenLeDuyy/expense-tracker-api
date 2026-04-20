@@ -1,3 +1,5 @@
+from datetime import date
+from schemas.expense import PaginatedExpenseResponse
 from schemas.expense import ExpenseResponse
 from models.expense import Expense
 from sqlalchemy import func
@@ -47,8 +49,22 @@ def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: in
         warning=warning_message
     )
 
-def get_expenses_service(db: Session, user_id: int):
-    return get_expenses(db, user_id)
+def get_expenses_service(db: Session, user_id: int, category_id: int | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    min_amount: int | None = None,
+    max_amount: int | None = None,
+    sort_by: str = "date_desc",
+    page: int = 1,
+    page_size: int = 10,):
+    items, total = get_expenses(db, user_id, category_id, start_date, end_date, min_amount, max_amount, sort_by, page, page_size)
+    return PaginatedExpenseResponse(
+        items=items,
+        total_count=total,
+        page=page,
+        page_size=page_size,
+    )
+    
     
 def delete_expense_service(db: Session, expense_id: int, user_id: int):
     expense = delete_expense(db, expense_id, user_id)

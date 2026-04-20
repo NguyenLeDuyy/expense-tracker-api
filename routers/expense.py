@@ -1,3 +1,5 @@
+from datetime import date
+from fastapi import Query
 from schemas.expense import ExpenseResponse
 from app.core.deps import get_db
 from fastapi import APIRouter, Depends
@@ -24,9 +26,21 @@ def create_expense(
 
 @router.get("/")
 def get_expenses(db: Session = Depends(get_db),
-                 current_user: User = Depends(get_current_user)
+                 current_user: User = Depends(get_current_user),
+                 category_id: int | None = Query(None),
+                 start_date: date | None = Query(None),
+                 end_date: date | None = Query(None),
+                 min_amount: int | None = Query(None),
+                 max_amount: int | None = Query(None),
+                 sort_by: str = Query("date_desc"),
+                 page: int = Query(1, ge=1),
+                 page_size: int = Query(10, ge=1, le=100),
                  ):
-    return get_expenses_service(db, current_user.id)
+    return get_expenses_service(db, current_user.id,
+        category_id, start_date, end_date,
+        min_amount, max_amount,
+        sort_by, page, page_size,
+    )
 
 @router.delete("/{expense_id}")
 def delete_expense(

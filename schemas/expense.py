@@ -16,3 +16,9 @@ class ExpenseResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class PaginatedExpenseResponse(BaseModel):
+    items: list[ExpenseResponse]
+    total_count: int
+    page: int
+    page_size: int
