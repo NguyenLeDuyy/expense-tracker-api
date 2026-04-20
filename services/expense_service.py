@@ -14,11 +14,6 @@ from schemas.expense import ExpenseCreate
 from sqlalchemy.orm import Session
 def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: int):
     expense = create_expense(db, expense_data, user_id)
-    
-    db.commit()
-    db.refresh(expense)
-
-    warning_message = None
 
     category = db.query(Category).filter(
         Category.id == expense_data.category_id,
@@ -28,6 +23,10 @@ def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: in
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
+    db.commit()
+    db.refresh(expense)
+
+    warning_message = None
     if category.monthly_budget > 0:
         first_day_of_month = expense.date.replace(day=1)
 
@@ -40,15 +39,12 @@ def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: in
         if total_spent > category.monthly_budget:
             warning_message = f"Budget exceeded for {category.name}: spent {total_spent:,} / limit {category.monthly_budget:,}"
 
-        expense.warning=warning_message
-
     return ExpenseResponse(
         id=expense.id,
         amount=expense.amount,
         category_id=category.id,
         date=expense.date,
-        user_id=expense.user_id,
-        warning=expense.warning
+        warning=warning_message
     )
 
 def get_expenses_service(db: Session, user_id: int):
