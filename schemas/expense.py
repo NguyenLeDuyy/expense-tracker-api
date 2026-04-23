@@ -22,3 +22,19 @@ class PaginatedExpenseResponse(BaseModel):
     total_count: int
     page: int
     page_size: int
+
+class SummaryEachCategory(BaseModel):
+    category_name: str
+    total: float
+
+class SummaryExpenseResponse(BaseModel):
+    month: str
+    total: int
+    by_category: list[SummaryEachCategory]
+
+class StatisticsExpenseResponse(BaseModel):
+    daily_average: int
+    top_category: SummaryEachCategory | None = None
+    this_month_total: int | None = None
+    last_month_total: int | None = None
+    month_over_month_change: float | None = None

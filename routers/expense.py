@@ -1,3 +1,7 @@
+from services.expense_service import get_stats_service
+from schemas.expense import StatisticsExpenseResponse
+from schemas.expense import SummaryExpenseResponse
+from services.expense_service import get_summary_service
 from datetime import date
 from fastapi import Query
 from schemas.expense import ExpenseResponse
@@ -41,6 +45,23 @@ def get_expenses(db: Session = Depends(get_db),
         min_amount, max_amount,
         sort_by, page, page_size,
     )
+
+@router.get("/summary", response_model=SummaryExpenseResponse)
+def get_summary(db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_user),
+                month: int | None = Query(None, ge=1, le=12),
+                year: int | None = Query(None, ge=0),
+            ):
+
+                return get_summary_service(db, current_user.id, month, year)
+
+@router.get("/stats", response_model=StatisticsExpenseResponse)
+def get_stats(db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_user),
+                month: int | None = Query(None, ge=1, le=12),
+                year: int | None = Query(None, ge=0),
+            ):
+                return get_stats_service(db, current_user.id, month, year)
 
 @router.delete("/{expense_id}")
 def delete_expense(

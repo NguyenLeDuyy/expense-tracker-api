@@ -1,3 +1,9 @@
+from sqlalchemy import desc
+from schemas.expense import SummaryEachCategory
+from schemas.expense import StatisticsExpenseResponse
+from calendar import monthrange
+from services.category_service import get_categories_service
+from schemas.expense import SummaryExpenseResponse
 from datetime import date
 from schemas.expense import PaginatedExpenseResponse
 from schemas.expense import ExpenseResponse
@@ -63,6 +69,109 @@ def get_expenses_service(db: Session, user_id: int, category_id: int | None = No
         total_count=total,
         page=page,
         page_size=page_size,
+    )
+
+def get_summary_service(db: Session, user_id: int, month: int, year: int):
+
+    year = year or date.today().year
+    month = month or date.today().month
+
+    total_spent_of_month = db.query(
+            func.sum(Expense.amount)
+        ).filter(
+            Expense.user_id == user_id,
+            func.extract("month", Expense.date) == month,
+            func.extract("year", Expense.date) == year
+        ).scalar() or 0
+
+    rows = db.query(
+        Category.name.label("category_name"),
+        func.sum(Expense.amount).label("total")
+    ).select_from(Expense
+    ).join(Category, Expense.category_id == Category.id
+    ).filter(
+        Expense.user_id == user_id,
+        func.extract("month", Expense.date) == month,
+        func.extract("year", Expense.date) == year,
+    ).group_by(Category.name
+    ).all()
+
+    by_category = [
+        SummaryEachCategory(category_name=category_name, total=total)
+        for category_name, total in rows
+    ]
+
+    return SummaryExpenseResponse(
+        month=f"{year}-{month}",
+        by_category=by_category,
+        total=total_spent_of_month
+    )
+
+def get_stats_service(db: Session, user_id: int, month: int, year: int):
+
+    year = year or date.today().year
+    month = month or date.today().month
+
+    this_month_total = db.query(
+        func.sum(Expense.amount)
+    ).filter(
+        Expense.user_id == user_id,
+        func.extract("month", Expense.date) == month,
+        func.extract("year", Expense.date) == year,
+    ).scalar() or 0
+
+    if year == date.today().year and month == date.today().month:
+        days_passed = date.today().day
+        daily_average = int(this_month_total / days_passed) if days_passed > 0 else 0
+    else:
+        days_in_month = monthrange(year, month)[1]
+        daily_average = int(this_month_total / days_in_month)
+
+    row = db.query(
+        Category.name.label("category_name"),
+        func.sum(Expense.amount).label("total")
+    ).select_from(Expense
+    ).join(Category, Expense.category_id == Category.id
+    ).filter(
+        Expense.user_id == user_id,
+        func.extract("month", Expense.date) == month,
+        func.extract("year", Expense.date) == year,
+    ).group_by(Category.name
+    ).order_by(desc("total")
+    ).first()
+
+    if row:
+        top_category = SummaryEachCategory(category_name=row.category_name, total=row.total)
+    else:
+        top_category = None
+
+    filtered_month = month - 1
+    filtered_year = year
+
+    if filtered_month == 0:
+        filtered_month = 12
+        filtered_year = year - 1
+
+    last_month_total = db.query(
+        func.sum(Expense.amount)
+    ).filter(
+        Expense.user_id == user_id,
+        func.extract("month", Expense.date) == filtered_month,
+        func.extract("year", Expense.date) == filtered_year,
+    ).scalar() or 0
+
+    month_over_month_change = None
+    if last_month_total == 0:
+        last_month_total = None
+    else:
+        month_over_month_change = ((this_month_total - last_month_total) / last_month_total) * 100
+
+    return StatisticsExpenseResponse(
+        daily_average=daily_average,
+        top_category=top_category,
+        this_month_total=this_month_total,
+        last_month_total=last_month_total,
+        month_over_month_change=month_over_month_change
     )
     
     
