@@ -1,38 +1,20 @@
-# Expense Tracker API 🚀
+# Expense Tracker API
 
-A simple backend API built with FastAPI to manage personal expenses.
+RESTful backend API for expense management built with FastAPI, SQLAlchemy, and Alembic.
 
----
+## Features
+- Authentication & authorization
+- Multi-user expense management
+- Expense CRUD
+- Category management
+- Filtering / pagination / summary
+- PostgreSQL + Alembic migrations
 
-## 📌 Features
+## Architecture
+Client → Router → Service → CRUD → Database
 
-* Create expense
-* Get all expenses
-* SQLite database
-* RESTful API
-
----
-
-## 🛠 Tech Stack
-
-* Python
-* FastAPI
-* SQLAlchemy
-* SQLite
-
----
-
-## 📁 Project Structure
-
-expense-tracker-api/
-├── main.py
-├── database.py
-├── models.py
-├── schemas.py
-├── requirements.txt
-└── README.md
-
----
+## Tech Stack
+FastAPI, SQLAlchemy, Alembic, PostgreSQL, JWT, bcrypt
 
 ## ⚙️ Setup & Run
 
