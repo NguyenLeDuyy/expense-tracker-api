@@ -2,7 +2,6 @@ from sqlalchemy import desc
 from schemas.expense import SummaryEachCategory
 from schemas.expense import StatisticsExpenseResponse
 from calendar import monthrange
-from services.category_service import get_categories_service
 from schemas.expense import SummaryExpenseResponse
 from datetime import date
 from schemas.expense import PaginatedExpenseResponse

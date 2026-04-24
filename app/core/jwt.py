@@ -1,3 +1,4 @@
+from app.core.config import settings
 import os
 from uuid import uuid4
 
@@ -8,10 +9,10 @@ import datetime
 
 load_dotenv()
 
-JWT_SECRET = os.getenv("JWT_SECRET", "CHANGE_ME_IN_ENV")
+SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "30"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+REFRESH_TOKEN_EXPIRE_DAYS = int(settings.REFRESH_TOKEN_EXPIRE_DAYS)
 JWT_ISSUER = os.getenv("JWT_ISSUER", "expense-tracker-api")
 
 def _utc_now() -> datetime.datetime:
@@ -28,7 +29,7 @@ def create_access_token(*, user_id: int, email: str) -> str:
         "exp": now + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
         "iss": JWT_ISSUER,
     }
-    return jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 def create_refresh_token(*, user_id: int) -> tuple[str, str, datetime.datetime]:
     now = _utc_now()
@@ -42,12 +43,12 @@ def create_refresh_token(*, user_id: int) -> tuple[str, str, datetime.datetime]:
         "exp": expires_at,
         "iss": JWT_ISSUER,
     }
-    token = jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token, jti, expires_at
 
 def decode_token(token: str) -> dict:
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM], issuer=JWT_ISSUER)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], issuer=JWT_ISSUER)
         return payload
     except JWTError as exc:
         raise HTTPException(

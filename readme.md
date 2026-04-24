@@ -12,6 +12,8 @@ A production-oriented RESTful backend for managing personal expenses, built with
 - Expense management (CRUD)
 - Category management
 - Filtering, sorting, and pagination
+- Advanced analytics (monthly reports, trends)
+- Refresh token mechanism
 - Clean layered architecture (Router → Service → CRUD)
 - Database migration with Alembic
 
@@ -92,16 +94,25 @@ source venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 ```
 
-### 4. Run migrations
+### 4. Setup environment variables
+
+Create a `.env` file in the root directory and configure your database URL. You can use the provided example:
+
+```bash
+cp .env.example .env
+# Edit .env to set your DATABASE_URL, SECRET_KEY, etc.
+```
+
+### 5. Run migrations
 
 ```bash
 alembic upgrade head
 ```
 
-### 5. Start server
+### 6. Start server
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn main:app --reload
 ```
 
 ---
@@ -137,9 +148,7 @@ Live demo: *(update your Railway/Render link here)*
 
 ## 📌 Future Improvements
 
-- [ ] Refresh token mechanism
 - [ ] Role-based access control (RBAC)
-- [ ] Advanced analytics (monthly reports, trends)
 - [ ] Performance optimization
 - [ ] Full test coverage
 
