@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException, status
+from app.core.exceptions import UnauthorizedException
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -25,35 +26,19 @@ def get_current_user(
     payload = decode_token(token)
     
     if payload.get("type") != "access":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise UnauthorizedException("Invalid token type")
     
     user_id_raw = payload.get("sub")
     if user_id_raw is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token payload",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise UnauthorizedException("Invalid token payload")
     
     try:
         user_id = int(user_id_raw)
     except (TypeError, ValueError):
-        raise HTTPException(
-             status_code=status.HTTP_401_UNAUTHORIZED,
-             detail="Invalid token payload",
-             headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise UnauthorizedException("Invalid token payload")
     
     user = db.query(User).filter(User.id == int(user_id)).first()
     if user is None:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="User not found",
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
+                raise UnauthorizedException("Invalid token payload")
 
     return user

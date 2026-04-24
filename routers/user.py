@@ -1,3 +1,4 @@
+from schemas.response import success_response, ApiResponse
 from schemas.auth import RefreshRequest
 from app.core.deps import get_db
 from fastapi import APIRouter, Depends
@@ -13,11 +14,13 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register")
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
-    return create_user_service(db, payload)
+    user = create_user_service(db, payload)
+    return success_response(data=user, message="User registered successfully")
 
 @router.post("/login")
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    return login_user_service(db, payload)
+    result = login_user_service(db, payload)
+    return success_response(data=result, message="Login successful")
 
 @router.post("/token")
 def login_for_access_token(
@@ -33,8 +36,9 @@ def login_for_access_token(
     
 @router.post("/refresh")
 def refresh_token(payload: RefreshRequest, db: Session = Depends(get_db)):
-    return refresh_access_token_service(db, payload.refresh_token)
+    result = refresh_access_token_service(db, payload.refresh_token)
+    return success_response(data=result, message="Token refreshed successfully")
 
 @router.get("/me")
 def me(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "email": current_user.email}
+    return success_response(data={"id": current_user.id, "email": current_user.email}, message="User retrieved successfully")

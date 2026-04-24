@@ -1,19 +1,14 @@
+from app.core.exceptions import UnauthorizedException
 from app.core.config import settings
-import os
 from uuid import uuid4
-
-from dotenv import load_dotenv
-from fastapi import HTTPException, status
 from jose import JWTError, jwt
 import datetime
 
-load_dotenv()
-
 SECRET_KEY = settings.SECRET_KEY
-ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-REFRESH_TOKEN_EXPIRE_DAYS = int(settings.REFRESH_TOKEN_EXPIRE_DAYS)
-JWT_ISSUER = os.getenv("JWT_ISSUER", "expense-tracker-api")
+ALGORITHM = settings.ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
+JWT_ISSUER = settings.JWT_ISSUER
 
 def _utc_now() -> datetime.datetime:
     return datetime.datetime.now(datetime.timezone.utc)
@@ -51,8 +46,4 @@ def decode_token(token: str) -> dict:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], issuer=JWT_ISSUER)
         return payload
     except JWTError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from exc
+        raise UnauthorizedException("Invalid or expired token") from exc

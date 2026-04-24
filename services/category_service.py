@@ -1,5 +1,6 @@
+from app.core.exceptions import NotFoundException
+from app.core.exceptions import BadRequestException
 from crud.category import update_category, delete_category, create_category, get_category_by_name
-from fastapi import HTTPException
 from models.category import Category
 from schemas.category import CategoryCreate
 from sqlalchemy.orm import Session
@@ -7,7 +8,7 @@ from sqlalchemy.orm import Session
 def create_category_service(db: Session, category_data: CategoryCreate, user_id: int):
     existing_category = get_category_by_name(db, category_data.name, user_id)
     if existing_category:
-        raise HTTPException(status_code=400, detail="Category already exists")
+        raise BadRequestException("Category already exists")
 
     category = create_category(db, category_data, user_id)
     
@@ -22,7 +23,7 @@ def delete_category_service(db: Session, category_id: int, user_id: int):
     category = delete_category(db, category_id, user_id)
 
     if not category:
-        raise HTTPException(status_code=404, detail="Not found")
+        raise NotFoundException("Category not found")
 
     db.commit()
     return category
@@ -31,7 +32,7 @@ def update_category_service(db: Session, category_data: CategoryCreate, category
     category = update_category(db, category_data, category_id, user_id)
     
     if not category:
-        raise HTTPException(status_code=404, detail="Not found")
+        raise NotFoundException("Category not found")
 
     db.commit()
     db.refresh(category)

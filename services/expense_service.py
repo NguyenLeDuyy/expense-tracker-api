@@ -1,3 +1,4 @@
+from app.core.exceptions import NotFoundException
 from sqlalchemy import desc
 from schemas.expense import SummaryEachCategory
 from schemas.expense import StatisticsExpenseResponse
@@ -9,7 +10,6 @@ from schemas.expense import ExpenseResponse
 from models.expense import Expense
 from sqlalchemy import func
 from models.category import Category
-from fastapi import HTTPException
 
 from crud.expense import (
     create_expense,
@@ -28,7 +28,7 @@ def create_expense_service(db: Session, expense_data: ExpenseCreate, user_id: in
     ).first()
 
     if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
+        raise NotFoundException("Category not found")
 
     db.commit()
     db.refresh(expense)
@@ -178,7 +178,7 @@ def delete_expense_service(db: Session, expense_id: int, user_id: int):
     expense = delete_expense(db, expense_id, user_id)
 
     if not expense:
-        raise HTTPException(status_code=404, detail="Not found")
+        raise NotFoundException("Expense not found")
 
     db.commit()
     return expense
@@ -187,7 +187,7 @@ def update_expense_service(db: Session, expense_data: ExpenseCreate, expense_id:
     expense = update_expense(db, expense_data, expense_id, user_id)
     
     if not expense:
-        raise HTTPException(status_code=404, detail="Not found")
+        raise NotFoundException("Expense not found")
 
     db.commit()
     db.refresh(expense)

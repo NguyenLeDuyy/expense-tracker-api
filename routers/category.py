@@ -1,3 +1,5 @@
+from schemas.response import success_response
+from schemas.response import ApiResponse
 from services.category_service import delete_category_service, update_category_service
 from schemas.category import CategoryResponse
 from services.category_service import get_categories_service, create_category_service
@@ -12,20 +14,22 @@ from models.user import User
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
-@router.post("/", response_model=CategoryResponse)
+@router.post("/", response_model=ApiResponse[CategoryResponse])
 def create_category(
     category: CategoryCreate, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
     ):
-    return create_category_service(db, category, current_user.id)
+    category = create_category_service(db, category, current_user.id)
+    return success_response(data=category, message="Category created successfully")
 
-@router.get("/", response_model=list[CategoryResponse])
+@router.get("/", response_model=ApiResponse[list[CategoryResponse]])
 def get_categories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
     ):
-    return get_categories_service(db, current_user.id)
+    categories = get_categories_service(db, current_user.id)
+    return success_response(data=categories, message="Categories retrieved successfully")
 
 @router.delete("/{category_id}")
 def delete_category(
@@ -34,13 +38,14 @@ def delete_category(
     current_user: User = Depends(get_current_user)
     ):
     delete_category_service(db, category_id, current_user.id)
-    return {"message": "Deleted"}
+    return success_response(message="Category deleted successfully")
 
-@router.put("/{category_id}")
+@router.put("/{category_id}", response_model=ApiResponse[CategoryResponse])
 def update_category(
     updated: CategoryCreate, 
     category_id: int, 
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
     ):
-    return update_category_service(db, updated, category_id, current_user.id)
+    updated_category = update_category_service(db, updated, category_id, current_user.id)
+    return success_response(data=updated_category, message="Category updated successfully")

@@ -1,9 +1,10 @@
+from pydantic import Field
 from datetime import date as dt_date
 from pydantic import BaseModel
 
 
 class ExpenseCreate(BaseModel):
-    amount: int
+    amount: int = Field(ge=0)
     category_id: int
     date: dt_date | None = None    
 
