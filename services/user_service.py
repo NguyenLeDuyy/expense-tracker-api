@@ -1,3 +1,4 @@
+import logging
 from app.core.exceptions import UnauthorizedException
 from app.core.exceptions import BadRequestException
 import datetime
@@ -8,6 +9,8 @@ from app.core.security import hash_password, verify_password
 from models.refresh_token import RefreshToken
 from models.user import User
 from schemas.auth import LoginRequest, RegisterRequest, TokenPairResponse, UserPublic
+
+logger = logging.getLogger("app.auth")
 
 def _issue_token_pair(db: Session, user: User) -> TokenPairResponse:
     access_token = create_access_token(user_id=user.id, email=user.email)
@@ -38,6 +41,8 @@ def create_user_service(db: Session, user_data: RegisterRequest):
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    logger.info(f"User registered: {user.email}")
     
     tokens = _issue_token_pair(db, user)
 
@@ -50,9 +55,12 @@ def login_user_service(db: Session, user_data: LoginRequest):
 
     user = db.query(User).filter(User.email == user_data.email).first()
     if user is None or not verify_password(user_data.password, user.hashed_password):
+        logger.warning(f"Login failed: {user_data.email}")
         raise UnauthorizedException("Invalid credentials")
 
     tokens = _issue_token_pair(db, user)
+
+    logger.info(f"User logged in: {user.email}")
 
     return {
         "user": UserPublic(id=user.id, email=user.email),

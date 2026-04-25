@@ -1,3 +1,4 @@
+import logging
 from app.core.exceptions import UnauthorizedException
 from app.core.config import settings
 from uuid import uuid4
@@ -9,6 +10,8 @@ ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
 JWT_ISSUER = settings.JWT_ISSUER
+
+logger = logging.getLogger("app.jwt")
 
 def _utc_now() -> datetime.datetime:
     return datetime.datetime.now(datetime.timezone.utc)
@@ -46,4 +49,5 @@ def decode_token(token: str) -> dict:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], issuer=JWT_ISSUER)
         return payload
     except JWTError as exc:
+        logger.warning(f"Token decode failed: {exc}")
         raise UnauthorizedException("Invalid or expired token") from exc

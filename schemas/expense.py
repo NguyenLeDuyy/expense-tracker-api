@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class ExpenseCreate(BaseModel):
-    amount: int = Field(ge=0)
+    amount: int = Field(gt=0)
     category_id: int
     date: dt_date | None = None    
 
