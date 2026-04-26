@@ -1,21 +1,61 @@
 # Expense Tracker API
 
-A production-oriented RESTful backend for managing personal expenses, built with FastAPI following a layered architecture.
+A RESTful API for personal expense tracking with JWT authentication, budget management, and spending analytics.
+
+**Tech Stack:** Python · FastAPI · SQLAlchemy · PostgreSQL · Alembic · Docker
+
+**[Live Demo](https://expense-tracker-api-production-0b8c.up.railway.app/docs)**
 
 ---
 
 ## 🚀 Features
 
-- User authentication (JWT-based login & register)
-- Secure password hashing (bcrypt)
-- Multi-user system (each user accesses only their own data)
-- Expense management (CRUD)
-- Category management
-- Filtering, sorting, and pagination
-- Advanced analytics (monthly reports, trends)
-- Refresh token mechanism
-- Clean layered architecture (Router → Service → CRUD)
-- Database migration with Alembic
+- 🔐 JWT auth (access + refresh token)
+- 🔑 Secure password hashing (bcrypt)
+- 👤 Multi-user data isolation
+- 💸 Expense management (CRUD)
+- 🗂️ Category CRUD with monthly budget limit
+- ⚠️ Budget overspend warning
+- 🔍 Filtering, sorting, and pagination
+- 📊 Monthly summary + statistics
+- 🚨 Unified error response format
+- 📝 Request logging middleware
+- 🧱 Clean layered architecture (Router → Service → CRUD)
+- 🗄️ Database migration with Alembic
+- ✅ 17 unit tests
+
+---
+
+## 📡 API Endpoints
+
+### 🔐 Auth
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|:----:|
+| `POST` | `/auth/register` | Register a new user | ❌ |
+| `POST` | `/auth/login` | Login, returns access + refresh token | ❌ |
+| `POST` | `/auth/refresh` | Refresh access token | ❌ |
+| `GET` | `/auth/me` | Get current user profile | ✅ |
+
+### 💸 Expenses
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|:----:|
+| `POST` | `/expenses/` | Create a new expense | ✅ |
+| `GET` | `/expenses/` | List expenses (filter / sort / paginate) | ✅ |
+| `PUT` | `/expenses/{id}` | Update an expense | ✅ |
+| `DELETE` | `/expenses/{id}` | Delete an expense | ✅ |
+| `GET` | `/expenses/summary` | Monthly spending summary by category | ✅ |
+| `GET` | `/expenses/stats` | Month-over-month spending statistics | ✅ |
+
+### 🗂️ Categories
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|:----:|
+| `POST` | `/categories/` | Create a category | ✅ |
+| `GET` | `/categories/` | List all categories | ✅ |
+| `PUT` | `/categories/{id}` | Update a category | ✅ |
+| `DELETE` | `/categories/{id}` | Delete a category | ✅ |
 
 ---
 
@@ -23,10 +63,12 @@ A production-oriented RESTful backend for managing personal expenses, built with
 
 - **Backend:** FastAPI
 - **ORM:** SQLAlchemy
-- **Database:** PostgreSQL / SQLite
+- **Database:** PostgreSQL
 - **Migration:** Alembic
 - **Authentication:** JWT (python-jose), bcrypt
-- **Tools:** Docker, pytest (planned)
+- **Config:** pydantic-settings
+- **Testing:** pytest
+- **DevOps:** Docker, Docker Compose
 
 ---
 
@@ -54,66 +96,37 @@ A production-oriented RESTful backend for managing personal expenses, built with
 ## 📂 Project Structure
 
 ```text
-app/
-├── core/       # config, security (JWT, hashing)
-├── models/     # SQLAlchemy models
-├── schemas/    # Pydantic schemas
-├── crud/       # database operations
-├── services/   # business logic
-├── routers/    # API endpoints
-└── main.py     # entry point
-
-alembic/        # database migrations
-alembic.ini
+├── main.py                  # App entry point, middleware, exception handlers
+├── database.py              # Database engine and session
+├── models/                  # SQLAlchemy models
+├── schemas/                 # Pydantic request/response schemas
+├── crud/                    # Database operations
+├── services/                # Business logic
+├── routers/                 # API route handlers
+├── app/core/                # Config, auth, logging, exceptions
+├── alembic/                 # Database migrations
+├── tests/                   # Unit tests
+├── Dockerfile
+├── docker-compose.yml
+└── .env.example
 ```
 
 ---
 
-## ⚙️ Setup (Local)
+## 🚀 Quick Start (Local)
 
-### 1. Clone repository
+1. Clone repo
+2. Create virtual environment
+3. Install dependencies: `pip install -r requirements.txt`
+4. Copy `.env.example` to `.env` and fill in values
+5. Run migrations: `alembic upgrade head`
+6. Start server: `uvicorn main:app --reload`
+7. Open http://localhost:8000/docs
 
-```bash
-git clone https://github.com/NguyenLeDuyy/expense-tracker-api.git
-cd expense-tracker-api
-```
+## 🐳 Quick Start (Docker)
 
-### 2. Create virtual environment
-
-```bash
-python -m venv venv
-
-# Activate:
-venv\Scripts\activate     # Windows
-source venv/bin/activate  # macOS/Linux
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Setup environment variables
-
-Create a `.env` file in the root directory and configure your database URL. You can use the provided example:
-
-```bash
-cp .env.example .env
-# Edit .env to set your DATABASE_URL, SECRET_KEY, etc.
-```
-
-### 5. Run migrations
-
-```bash
-alembic upgrade head
-```
-
-### 6. Start server
-
-```bash
-uvicorn main:app --reload
-```
+1. `docker-compose up --build`
+2. Open http://localhost:8000/docs
 
 ---
 
@@ -124,33 +137,38 @@ uvicorn main:app --reload
 
 ---
 
-## 🐳 Run with Docker (optional)
-
-```bash
-docker-compose up --build
-```
-
----
-
-## 🧪 Testing (coming soon)
+## 🧪 Running Tests
 
 ```bash
 pytest -v
+pytest --cov=. --cov-report=term-missing -v
 ```
 
 ---
 
-## 🌐 Deployment
+## ⚙️ Environment Variables
 
-Live demo: *(update your Railway/Render link here)*
+Create a `.env` file in the project root:
 
----
+| Variable | Description | Required | Default |
+|----------|-------------|:--------:|---------|
+| `DATABASE_URL` | PostgreSQL connection string | ✅ | — |
+| `SECRET_KEY` | JWT signing key (`secrets.token_hex(32)`) | ✅ | — |
+| `ALGORITHM` | JWT signing algorithm | ❌ | `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token lifetime in minutes | ❌ | `30` |
+| `REFRESH_TOKEN_EXPIRE_DAYS` | Refresh token lifetime in days | ❌ | `7` |
+| `JWT_ISSUER` | JWT issuer claim | ❌ | `expense-tracker-api` |
 
-## 📌 Future Improvements
+Example `.env`:
 
-- [ ] Role-based access control (RBAC)
-- [ ] Performance optimization
-- [ ] Full test coverage
+```env
+DATABASE_URL=postgresql://postgres:password@localhost:5432/expense_db
+SECRET_KEY=your-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+JWT_ISSUER=expense-tracker-api
+```
 
 ---
 
