@@ -2,13 +2,13 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    email: EmailStr = Field(json_schema_extra={"example": "user@example.com"})
+    password: str = Field(min_length=8, max_length=128, json_schema_extra={"example": "securepassword123"})
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    email: EmailStr = Field(json_schema_extra={"example": "user@example.com"})
+    password: str = Field(min_length=8, max_length=128, json_schema_extra={"example": "securepassword123"})
 
 
 class TokenPairResponse(BaseModel):
@@ -22,4 +22,4 @@ class UserPublic(BaseModel):
     email: EmailStr
 
 class RefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str = Field(json_schema_extra={"example": "<your_refresh_token>"})

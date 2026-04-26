@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class ExpenseCreate(BaseModel):
-    amount: int = Field(gt=0)
-    category_id: int
-    date: dt_date | None = None    
+    amount: int = Field(gt=0, json_schema_extra={"example": 150000})
+    category_id: int = Field(json_schema_extra={"example": 1})
+    date: dt_date | None = Field(None, json_schema_extra={"example": "2026-04-26"})
 
 class ExpenseResponse(BaseModel):
     id: int

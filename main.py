@@ -10,7 +10,21 @@ from routers.user import router as user_router
 from routers.category import router as category_router
 
 logger = setup_logging()
-app = FastAPI()
+
+tags_metadata = [
+    {"name": "Auth", "description": "Register, login, token refresh, and user profile"},
+    {"name": "Expenses", "description": "CRUD operations, filtering, sorting, and pagination for expenses"},
+    {"name": "Categories", "description": "Manage expense categories and monthly budgets"},
+    {"name": "Statistics", "description": "Spending summaries and month-over-month analytics"},
+]
+
+app = FastAPI(
+    title="Expense Tracker API",
+    description="RESTful API for personal expense tracking with JWT authentication, budget management, and spending analytics.",
+    version="1.0.0",
+    contact={"name": "Nguyen Le Duy", "url": "https://github.com/NguyenLeDuyy"},
+    openapi_tags=tags_metadata
+)
 
 # Thêm middleware log mỗi request
 @app.middleware("http")

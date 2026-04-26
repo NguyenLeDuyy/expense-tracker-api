@@ -14,7 +14,10 @@ from models.user import User
 
 router = APIRouter(prefix="/categories", tags=["Categories"])
 
-@router.post("/", response_model=ApiResponse[CategoryResponse])
+@router.post("/", response_model=ApiResponse[CategoryResponse],
+    summary="Create a category",
+    description="Create a new expense category with an optional monthly budget limit."
+)
 def create_category(
     category: CategoryCreate, 
     db: Session = Depends(get_db),
@@ -23,7 +26,10 @@ def create_category(
     category = create_category_service(db, category, current_user.id)
     return success_response(data=category, message="Category created successfully")
 
-@router.get("/", response_model=ApiResponse[list[CategoryResponse]])
+@router.get("/", response_model=ApiResponse[list[CategoryResponse]],
+    summary="List categories",
+    description="Retrieve all expense categories belonging to the current user."
+)
 def get_categories(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -31,7 +37,10 @@ def get_categories(
     categories = get_categories_service(db, current_user.id)
     return success_response(data=categories, message="Categories retrieved successfully")
 
-@router.delete("/{category_id}")
+@router.delete("/{category_id}",
+    summary="Delete a category",
+    description="Permanently delete a category by ID. Only the owner can delete their own categories."
+)
 def delete_category(
     category_id: int, 
     db: Session = Depends(get_db),
@@ -40,7 +49,10 @@ def delete_category(
     delete_category_service(db, category_id, current_user.id)
     return success_response(message="Category deleted successfully")
 
-@router.put("/{category_id}", response_model=ApiResponse[CategoryResponse])
+@router.put("/{category_id}", response_model=ApiResponse[CategoryResponse],
+    summary="Update a category",
+    description="Update the name or monthly budget of an existing category."
+)
 def update_category(
     updated: CategoryCreate, 
     category_id: int, 
