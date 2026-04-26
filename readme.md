@@ -93,7 +93,7 @@ A RESTful API for personal expense tracking with JWT authentication, budget mana
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ├── main.py                  # App entry point, middleware, exception handlers
@@ -113,7 +113,7 @@ A RESTful API for personal expense tracking with JWT authentication, budget mana
 
 ---
 
-## 🚀 Quick Start (Local)
+## Quick Start (Local)
 
 1. Clone repo
 2. Create virtual environment
@@ -123,7 +123,7 @@ A RESTful API for personal expense tracking with JWT authentication, budget mana
 6. Start server: `uvicorn main:app --reload`
 7. Open http://localhost:8000/docs
 
-## 🐳 Quick Start (Docker)
+## Quick Start (Docker)
 
 1. `docker-compose up --build`
 2. Open http://localhost:8000/docs
@@ -137,7 +137,7 @@ A RESTful API for personal expense tracking with JWT authentication, budget mana
 
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
 ```bash
 pytest -v
