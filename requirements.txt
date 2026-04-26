@@ -30,3 +30,6 @@ typing_extensions==4.15.0
 uvicorn==0.42.0
 psycopg2-binary==2.9.12
 alembic==1.18.4
+pytest
+httpx
+pytest-cov

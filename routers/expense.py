@@ -76,7 +76,7 @@ def delete_expense(
     delete_expense_service(db, expense_id, current_user.id)
     return success_response(message="Expense deleted successfully")
 
-@router.put("/{expense_id}")
+@router.put("/{expense_id}", response_model=ApiResponse[ExpenseResponse])
 def update_expense(
     updated: ExpenseCreate, 
     expense_id: int, 

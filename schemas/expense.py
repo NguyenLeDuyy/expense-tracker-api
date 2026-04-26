@@ -1,6 +1,6 @@
-from pydantic import Field
 from datetime import date as dt_date
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
+
 
 
 class ExpenseCreate(BaseModel):
@@ -15,8 +15,7 @@ class ExpenseResponse(BaseModel):
     date: dt_date
     warning: str | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PaginatedExpenseResponse(BaseModel):
     items: list[ExpenseResponse]
